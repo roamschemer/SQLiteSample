@@ -1,11 +1,8 @@
 ﻿using Prism.Navigation;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 using System;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using SQLiteSample.Models;
 
 namespace SQLiteSample.ViewModels
