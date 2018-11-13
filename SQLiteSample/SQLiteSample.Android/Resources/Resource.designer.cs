@@ -26,6 +26,8 @@ namespace SQLiteSample.Droid
 		
 		public static void UpdateIdValues()
 		{
+			global::PCLStorage.Resource.String.ApplicationName = global::SQLiteSample.Droid.Resource.String.ApplicationName;
+			global::PCLStorage.Resource.String.Hello = global::SQLiteSample.Droid.Resource.String.Hello;
 			global::Reactive.Bindings.Resource.String.ApplicationName = global::SQLiteSample.Droid.Resource.String.ApplicationName;
 			global::Reactive.Bindings.Resource.String.Hello = global::SQLiteSample.Droid.Resource.String.Hello;
 			global::Xamarin.Forms.Platform.Android.Resource.Attribute.actionBarSize = global::SQLiteSample.Droid.Resource.Attribute.actionBarSize;

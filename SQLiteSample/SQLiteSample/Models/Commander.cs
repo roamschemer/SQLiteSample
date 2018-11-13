@@ -2,6 +2,8 @@
 using SQLite;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using PCLStorage;
 
 namespace SQLiteSample.Models
 {
@@ -40,7 +42,7 @@ namespace SQLiteSample.Models
 
     public class Commander : BindableBase
     {
-        private string dbPath;
+        private readonly string dbPath;
         public ObservableCollection<Person> Commanders { get; private set; } = new ObservableCollection<Person>();
 
         /// <summary>
@@ -49,8 +51,7 @@ namespace SQLiteSample.Models
         /// <param name="dbPath">SQLite保存名称</param>
         public Commander(string dbPath)
         {
-            this.dbPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), dbPath);
-            DbCreate();
+            this.dbPath = dbPath;
             DbLoad();
         }
 
@@ -67,9 +68,10 @@ namespace SQLiteSample.Models
         /// <summary>
         /// リストの更新
         /// </summary>
-        public void UpDate(int id, int age, string name, string gender)
+        public void UpDate(Person selectedPerson, int age, string name, string gender)
         {
-            var person = new Person { Id = id, Age = age, Name = name, Gender = gender };
+            if (selectedPerson == null) return;
+            var person = new Person { Id = selectedPerson.Id, Age = age, Name = name, Gender = gender };
             DbUpDate(person);
             DbLoad();
         }
@@ -78,32 +80,21 @@ namespace SQLiteSample.Models
         /// リストから消す
         /// </summary>
         /// <param name="person">人情報</param>
-        public void Delete(int id)
+        public void Delete(Person selectedPerson)
         {
-            var person = new Person { Id = id };
+            if (selectedPerson == null) return;
+            var person = new Person { Id = selectedPerson.Id };
             DbDelete(person);
-            //再読み込み
             DbLoad();
-        }
-
-        /// <summary>
-        /// データベース生成
-        /// </summary>
-        private void DbCreate()
-        {
-            using (var db = new SQLiteConnection(dbPath))
-            {
-                db.CreateTable<Person>();
-            }
         }
 
         /// <summary>
         /// データベースへ追加
         /// </summary>
         /// <param name="person">人情報</param>
-        private void DbInsert(Person person)
+        private async void DbInsert(Person person)
         {
-            using (var db = new SQLiteConnection(dbPath))
+            using (var db = await CreateDb())
             {
                 db.Insert(person);
             }
@@ -113,9 +104,9 @@ namespace SQLiteSample.Models
         /// データベースの更新
         /// </summary>
         /// <param name="person">人情報</param>
-        private void DbUpDate(Person person)
+        private async void DbUpDate(Person person)
         {
-            using (var db = new SQLiteConnection(dbPath))
+            using (var db = await CreateDb())
             {
                 db.Update(person);
             }
@@ -125,9 +116,9 @@ namespace SQLiteSample.Models
         /// データベースから削除
         /// </summary>
         /// <param name="person">人情報</param>
-        private void DbDelete(Person person)
+        private async void DbDelete(Person person)
         {
-            using (var db = new SQLiteConnection(dbPath))
+            using (var db = await CreateDb())
             {
                 db.Delete<Person>(person.Id);
             }
@@ -136,12 +127,11 @@ namespace SQLiteSample.Models
         /// <summary>
         /// データベースの呼出
         /// </summary>
-        private void DbLoad()
+        private async void DbLoad()
         {
             Commanders.Clear();
-            using (var db = new SQLiteConnection(dbPath))
+            using (var db = await CreateDb())
             {
-                //LINQで書きたいが…畜生！わからん！
                 foreach (var x in db.Table<Person>())
                 {
                     Commanders.Add(x);
@@ -149,6 +139,27 @@ namespace SQLiteSample.Models
             }
         }
 
+        /// <summary>
+        /// データベースの生成と取得(以下のようにPCLStorageを使わないとUWPで例外が発生した)
+        /// </summary>
+        /// <returns></returns>
+        private async Task<SQLiteConnection> CreateDb()
+        {
+            IFolder rootFolder = FileSystem.Current.LocalStorage;
+            var result = await rootFolder.CheckExistsAsync(dbPath);
+            if (result == ExistenceCheckResult.NotFound)
+            {
+                IFile file = await rootFolder.CreateFileAsync(dbPath, CreationCollisionOption.ReplaceExisting);
+                var db = new SQLiteConnection(file.Path);
+                db.CreateTable<Person>();
+                return db;
+            }
+            else
+            {
+                IFile file = await rootFolder.CreateFileAsync(dbPath, CreationCollisionOption.OpenIfExists);
+                return new SQLiteConnection(file.Path);
+            }
+        }
 
     }
 

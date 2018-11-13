@@ -7,17 +7,32 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <StackLayout Grid.Column="0">
-            <Picker Title="年齢" ItemsSource="{Binding AgeList}" SelectedItem="{Binding Age.Value}"/>
-            <Entry Placeholder="名前" Text ="{Binding Name.Value}" Keyboard="Text"/>
-            <Picker Title="性別" ItemsSource="{Binding GenderList}" SelectedItem="{Binding Gender.Value}" />
+            <Label  Text="DbInput" />
+            <Picker Title="Age" ItemsSource="{Binding AgeList}" SelectedItem="{Binding Age.Value}"/>
+            <Entry  Placeholder="Name" Text ="{Binding Name.Value}" Keyboard="Text"/>
+            <Picker Title="Gender" ItemsSource="{Binding GenderList}" SelectedItem="{Binding Gender.Value}" />
             <Button Text="Insert" Command="{Binding InsertTapped}"/>
             <Button Text="UpDate" Command="{Binding UpDateTapped}"/>
             <Button Text="Delete" Command="{Binding DeleteTapped}"/>
         </StackLayout>
         <ListView Grid.Column="1" ItemsSource="{Binding ListView}" SelectedItem="{Binding SelectedItem.Value}">
+            <ListView.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Text="ID" />
+                    <Label Grid.Column="1" Text="Age" />
+                    <Label Grid.Column="2" Text="Name" />
+                    <Label Grid.Column="3" Text="Gender" />
+                </Grid>
+            </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>

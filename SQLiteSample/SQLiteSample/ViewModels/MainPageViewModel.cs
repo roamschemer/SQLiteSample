@@ -26,12 +26,12 @@ namespace SQLiteSample.ViewModels
         public ReactiveCommand UpDateTapped { get; private set; } = new ReactiveCommand();
         public ReactiveCommand DeleteTapped { get; private set; } = new ReactiveCommand();
 
-        private Commander commander = new Commander("commander");
+        private Commander commander = new Commander("commander.db3");
 
         public MainPageViewModel(INavigationService navigationService)
             : base(navigationService)
         {
-            //Pickerリスト作成
+            //PickerList
             AgeList = new ObservableCollection<int>(Enumerable.Range(1, 100).ToList());
             GenderList = new ObservableCollection<string>() { "男", "女", "不明" };
 
@@ -39,18 +39,9 @@ namespace SQLiteSample.ViewModels
             ListView = commander.Commanders.ToReadOnlyReactiveCollection();
 
             //Button
-            InsertTapped.Subscribe(_ =>
-            {
-                commander.Insert(Age.Value, Name.Value, Gender.Value);
-            });
-            UpDateTapped.Subscribe(_ =>
-            {
-                commander.UpDate(SelectedItem.Value.Id, Age.Value, Name.Value, Gender.Value);
-            });
-            DeleteTapped.Subscribe(_ =>
-            {
-                commander.Delete(SelectedItem.Value.Id);
-            });
+            InsertTapped.Subscribe(_ => commander.Insert(Age.Value, Name.Value, Gender.Value));
+            UpDateTapped.Subscribe(_ => commander.UpDate(SelectedItem.Value, Age.Value, Name.Value, Gender.Value));
+            DeleteTapped.Subscribe(_ => commander.Delete(SelectedItem.Value));
         }
 
     }
